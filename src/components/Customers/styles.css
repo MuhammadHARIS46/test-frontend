@@ -1,0 +1,63 @@
+.cusMain {
+    display: flex;
+    overflow:hidden
+}
+.cusContent {
+    width:100%
+}
+.wrapper {
+    padding:25px;
+    display:flex;
+    flex-direction:column;
+    gap: 5rem;
+}
+.imgNameWrap{
+    display:flex;
+    align-items:center;
+    gap:20px
+}
+.username{
+    color:#5A5F65;
+    font-size:15px
+}
+.cusName{
+    color:#57BC90;
+    font-size:15px
+}
+/* Modal styles */
+.Modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    background-color: none;
+    overflow-y: auto;
+    max-height: 90%;
+    border-radius: 10px;
+}
+
+/* Media Queries */
+@media (max-width: 767px) and (min-width: 450px) {
+    .Modal {
+        width: 400px;
+    }
+}
+
+@media (max-width: 449px) and (min-width: 389px) {
+    .Modal {
+        width: 350px;
+    }
+}
+
+@media (max-width: 388px) and (min-width: 330px) {
+    .Modal {
+        width: 300px;
+    }
+}
+
+@media (max-width: 329px) {
+    .Modal {
+        width: 250px;
+    }
+}
