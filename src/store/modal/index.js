@@ -14,9 +14,15 @@ export const modalSlice = createSlice({
     setEditModal: (state, action) => {
       state.editModal = action.payload;
     },
+    setselectedUserId: (state, action) => {
+      state.selectedUserId = action.payload;
+    },
+    setSidebar:(state,action) =>{
+      state.sidebar = action.payload
+    }
   },
 });
 
-export const { setDltModal,setAddModal,setEditModal } = modalSlice.actions;
+export const { setDltModal,setAddModal,setEditModal,setselectedUserId,setSidebar } = modalSlice.actions;
 
 export default modalSlice.reducer;

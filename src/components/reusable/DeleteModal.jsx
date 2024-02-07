@@ -1,19 +1,40 @@
+import React, { useMemo } from "react";
 import DeleteIcon from "../../assets/delete.svg";
 import { Box, Typography, IconButton, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import "./styles.css";
-import { setDltModal } from "../../store/modal/index"
+import { setDltModal } from "../../store/modal/index";
 import { useAppDispatch, useAppSelector } from "../../store/index";
-const DeleteModal = ({ onClose }) => {
-  const { dltModal } = useAppSelector((state) => state.modal);
+import { CustomerService } from "../../services/customers/index.service";
+import { useSnackbar } from "notistack";
+const DeleteModal = () => {
+  const { selectedUserId } = useAppSelector((state) => state.modal);
 
   const dispatch = useAppDispatch();
+  const customerService = useMemo(() => new CustomerService(), []);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const deleteCustomer = async () => {
+    try {
+      const response = await customerService.deleteCustomer(selectedUserId);
+      enqueueSnackbar("Customer deleted successfully", {
+        variant: "success",
+        autoHideDuration: 2000,
+      });
+      dispatch(setDltModal(false));
+      return response
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <Box className="dltModalMain">
       <Box className="closeBtn">
-        <IconButton onClick={()=>{
-          dispatch(setDltModal(false))
-        }}>
+        <IconButton
+          onClick={() => {
+            dispatch(setDltModal(false));
+          }}
+        >
           <CloseIcon />
         </IconButton>
       </Box>
@@ -54,13 +75,13 @@ const DeleteModal = ({ onClose }) => {
             sx={{
               background: "#A5A5AF",
             }}
-            onClick={()=>{
-              dispatch(setDltModal(false))
+            onClick={() => {
+              dispatch(setDltModal(false));
             }}
           >
             Cancel
           </Button>
-          <Button variant="contained" color="error">
+          <Button variant="contained" color="error" onClick={deleteCustomer}>
             {" "}
             Delete
           </Button>

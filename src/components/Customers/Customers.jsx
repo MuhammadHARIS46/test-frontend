@@ -1,10 +1,8 @@
-import React from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useMemo, useEffect } from "react";
 import Header from "../reusable/Header";
 import Sidebar from "../reusable/Sidebar";
 import { Box, Button, Typography, Modal, Fade, Backdrop } from "@mui/material";
-// IconButton,useTheme,
-//   TableFooter,
-//   TablePagination,
 import "./styles.css";
 import AddIcon from "../../assets/Sign In.svg";
 import { styled } from "@mui/material/styles";
@@ -17,198 +15,91 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import DeleteModal from "../reusable/DeleteModal";
 import { useAppDispatch, useAppSelector } from "../../store/index";
+import { CustomerService } from "../../services/customers/index.service";
+import { Select, MenuItem } from "@mui/material";
 import {
   setDltModal,
   setAddModal,
   setEditModal,
+  setselectedUserId,
+  setSidebar,
 } from "../../store/modal/index";
 import AddCustomer from "../reusable/AddCustomer";
 import EditCustomer from "../reusable/EditCustomer";
-// import LastPageIcon from "@mui/icons-material/LastPage";
-// import FirstPageIcon from "@mui/icons-material/FirstPage";
-// import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
-// import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import NoDataSvg from "../../assets/no-results.svg";
 import SampleImg from "../../assets/hispanic-young-entrepreneur-his-office-desk-working-making-packages-with-fashion-clothes-ship-their-customers (1).png";
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: "#57BC90",
     color: theme.palette.common.white,
+    whiteSpace:"nowrap"
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
+    whiteSpace:"nowrap"
   },
+
 }));
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  // hide last border
+  backgroundColor: theme.palette.action.hover,
   "&:last-child td, &:last-child th": {
     border: 0,
   },
 }));
 
-function createData(name, calories, fat) {
-  return { name, calories, fat };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, "haris@mail.com"),
-  createData("Ice cream sandwich", 237, 9.0),
-  createData("Eclair", 262, 16.0),
-  createData("Eclair", 262, 16.0),
-  // createData("Eclair", 262, 16.0),
-  // createData("Eclair", 262, 16.0),
-  // createData("Eclair", 262, 16.0),
-  // createData("Eclair", 262, 16.0),
-];
-// function TablePaginationActions(props) {
-//   const theme = useTheme();
-//   const { count, page, rowsPerPage, onPageChange } = props;
-
-//   const handleFirstPageButtonClick = (
-//     event
-//   ) => {
-//     onPageChange(event, 0);
-//   };
-
-//   const handleBackButtonClick = (
-//     event
-//   ) => {
-//     onPageChange(event, page - 1);
-//   };
-
-//   const handleNextButtonClick = (
-//     event
-//   ) => {
-//     onPageChange(event, page + 1);
-//   };
-
-//   const handleLastPageButtonClick = (
-//     event
-//   ) => {
-//     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-//   };
-
-//   return (
-//     <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-//       <IconButton
-//         onClick={handleFirstPageButtonClick}
-//         disabled={page === 0}
-//         aria-label="first page"
-//       >
-//         {theme.direction === "rtl" ? (
-//           <LastPageIcon
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         ) : (
-//           <FirstPageIcon
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         )}
-//       </IconButton>
-//       <IconButton
-//         onClick={handleBackButtonClick}
-//         disabled={page === 0}
-//         aria-label="previous page"
-//       >
-//         {theme.direction === "rtl" ? (
-//           <KeyboardArrowRight
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         ) : (
-//           <KeyboardArrowLeft
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         )}
-//       </IconButton>
-//       <IconButton
-//         onClick={handleNextButtonClick}
-//         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-//         aria-label="next page"
-//       >
-//         {theme.direction === "rtl" ? (
-//           <KeyboardArrowLeft
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         ) : (
-//           <KeyboardArrowRight
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         )}
-//       </IconButton>
-//       <IconButton
-//         onClick={handleLastPageButtonClick}
-//         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-//         aria-label="last page"
-//       >
-//         {theme.direction === "rtl" ? (
-//           <FirstPageIcon
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         ) : (
-//           <LastPageIcon
-//             sx={{
-//               fill: "#000",
-//             }}
-//           />
-//         )}
-//       </IconButton>
-//     </Box>
-//   );
-// }
 const Customers = () => {
-  // const [dltModal,setDeleteModal] = useState(false)
-  const { dltModal, addModal, editModal } = useAppSelector(
+  const { dltModal, addModal, editModal, sidebar } = useAppSelector(
     (state) => state.modal
   );
+  const matches = useMediaQuery("(max-width:960px)");
 
   const dispatch = useAppDispatch();
-  // const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  // const [page, setPage] = React.useState(0);
-  // const handleChangePage = (
-  //   event,
-  //   newPage
-  // ) => {
-  //   setPage(newPage);
-  // };
+  const customerService = useMemo(() => new CustomerService(), []);
 
-  // const handleChangeRowsPerPage = (
-  //   event
-  // ) => {
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  //   setPage(0);
-  // };
+  const [customers, setCustomers] = useState([]);
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
+  const handleSortChange = (event) => {
+    const selectedSort = event.target.value;
+    setSortOrder(selectedSort === "asc" ? "asc" : "desc");
+  };
+
+  const handleSortByChange = (event) => {
+    const selectedSortBy = event.target.value;
+    setSortBy(selectedSortBy);
+  };
+
+  const getAllCustomers = async () => {
+    try {
+      const response = await customerService.getAllCustomers(sortBy, sortOrder);
+      console.log("customers", response);
+      setCustomers(response?.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    getAllCustomers();
+  }, [dltModal, addModal, editModal, sortBy, sortOrder]);
+  useEffect(() => {
+    if (matches === true) {
+      dispatch(setSidebar(false));
+    } else {
+      dispatch(setSidebar(true));
+    }
+  }, [matches]);
   return (
     <>
       <Box className="cusMain">
-        <Sidebar />
+        <Sidebar isOpen={sidebar} />
         <Box className="cusContent">
           <Header />
           <Box className="wrapper">
             <Button
-              style={{
-                background: "linear-gradient(105deg, #57BC90, #004B40)",
-                color: "white",
-                padding: "15px",
-                width: "250px",
-              }}
+              className="addNewCusBtn"
               onClick={() => {
                 dispatch(setAddModal(true));
               }}
@@ -216,91 +107,108 @@ const Customers = () => {
             >
               Add New Customer
             </Button>
-            <Paper sx={{ width: "100%", overflow: "hidden" }}>
-              <TableContainer sx={{ maxHeight: 440 }}>
-                <Table
-                  sx={{ minWidth: 650 }}
-                  stickyHeader
-                  aria-label="customized table"
-                >
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableCell>Username</StyledTableCell>
-                      <StyledTableCell>Customer Name</StyledTableCell>
-                      <StyledTableCell>Email</StyledTableCell>
-                      <StyledTableCell>Actions</StyledTableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <StyledTableRow key={row.name}>
-                        <StyledTableCell component="th" scope="row">
-                          <Box className="imgNameWrap">
-                            <img src={SampleImg} alt="SampleImg" />
-                            <Typography className="username">
-                              {row.name}
-                            </Typography>
-                          </Box>
-                        </StyledTableCell>
-                        <StyledTableCell>
-                          <Typography className="cusName">
-                            {row.calories}
+            <Box>
+              <Box className="dropdownWrap">
+                <Select value={sortOrder} onChange={handleSortChange} fullWidth>
+                  <MenuItem value="asc">Ascending</MenuItem>
+                  <MenuItem value="desc">Descending</MenuItem>
+                </Select>
+
+                <Select value={sortBy} onChange={handleSortByChange} fullWidth>
+                  <MenuItem value="name">Name</MenuItem>
+                  <MenuItem value="email">Email</MenuItem>
+                  <MenuItem value="username">Username</MenuItem>
+                </Select>
+              </Box>
+
+              <Paper sx={{ width: "100%", overflow: "auto" }}>
+                <TableContainer sx={{ maxHeight: 440, overflowX: "auto" }}>
+                  <Table
+                    stickyHeader
+                    aria-label="customized table"
+                    sx={{ minWidth: 650, width: "100%", overflowX: "auto" }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell>Username</StyledTableCell>
+                        <StyledTableCell>Customer Name</StyledTableCell>
+                        <StyledTableCell>Email</StyledTableCell>
+                        <StyledTableCell>Actions</StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {customers?.length > 0 ? (
+                        customers?.map((row) => (
+                          <StyledTableRow key={row._id}>
+                            <StyledTableCell component="th" scope="row">
+                              <Box className="imgNameWrap">
+                                <img
+                                  src={
+                                    row.imageUrl !== ""
+                                      ? row.imageUrl
+                                      : SampleImg
+                                  }
+                                  alt="SampleImg"
+                                  style={{
+                                    height: "75px",
+                                    width: "100px",
+                                  }}
+                                />
+                                <Typography className="username">
+                                  {row.username}
+                                </Typography>
+                              </Box>
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Typography className="cusName">
+                                {row.name}
+                              </Typography>
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Typography className="username">
+                                {row.email}
+                              </Typography>
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <Box className="imgNameWrap">
+                                <Button
+                                  className="editBtn"
+                                  onClick={() => {
+                                    dispatch(setEditModal(true));
+                                    dispatch(setselectedUserId(row?._id));
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  className="dltBtn"
+                                  onClick={() => {
+                                    dispatch(setDltModal(true));
+                                    dispatch(setselectedUserId(row?._id));
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </Box>
+                            </StyledTableCell>
+                          </StyledTableRow>
+                        ))
+                      ) : (
+                        <Box className="nodataWrap">
+                          <Typography className="allCusTypo">
+                            All Customers will be displayed here
                           </Typography>
-                        </StyledTableCell>
-                        <StyledTableCell>
-                          <Typography className="username">
-                            {row.fat}
+                          <Typography className="addFirstCus">
+                            Add your first customer
                           </Typography>
-                        </StyledTableCell>
-                        <StyledTableCell>
-                          <Box className="imgNameWrap">
-                            <Button
-                              variant="contained"
-                              color="success"
-                              onClick={() => {
-                                dispatch(setEditModal(true));
-                              }}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              onClick={() => {
-                                dispatch(setDltModal(true));
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </Box>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {/* <TableFooter>
-            <TableRow>
-              <TableCell>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
-                  colSpan={3}
-                  count={5}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  SelectProps={{
-                    inputProps: { "aria-label": "rows per page" },
-                    native: true,
-                  }}
-                  sx={{ color: "#000", backgroundColor: "#fff" }}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  ActionsComponent={TablePaginationActions}
-                />
-              </TableCell>
-            </TableRow>
-          </TableFooter> */}
-              </TableContainer>
-            </Paper>
+                          <img src={NoDataSvg} alt="no" />
+                        </Box>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -314,7 +222,7 @@ const Customers = () => {
       >
         <Fade in={dltModal}>
           <Box className="Modal">
-            <DeleteModal onClose={() => dispatch(setDltModal(false))} />
+            <DeleteModal />
           </Box>
         </Fade>
       </Modal>
@@ -328,7 +236,7 @@ const Customers = () => {
       >
         <Fade in={addModal}>
           <Box className="Modal">
-            <AddCustomer onClose={() => dispatch(setAddModal(false))} />
+            <AddCustomer />
           </Box>
         </Fade>
       </Modal>
@@ -342,7 +250,7 @@ const Customers = () => {
       >
         <Fade in={editModal}>
           <Box className="Modal">
-            <EditCustomer onClose={() => dispatch(setEditModal(false))} />
+            <EditCustomer />
           </Box>
         </Fade>
       </Modal>
